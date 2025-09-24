@@ -176,6 +176,7 @@ This project successfully demonstrates the viability of using machine learning f
 
 1. **Yuvan DS** - *yuvan.icasmpl2024@learner.manipal.edu*
 2. **Shashank S** - *shashank.icasmpl2024@learner.manipal.edu*
+3. **BITTU** - *shashank.icasmpl2024@learner.manipal.edu*
 
 ---
 
