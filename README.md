@@ -174,7 +174,7 @@ This project successfully demonstrates the viability of using machine learning f
 
 ## 11. Author
 
-* **Yuvan DS, Shashank S** - *yuvan.icasmpl2024@learner.manipal.edu*
+* **Yuvan DS, Shashank S** - *yuvan.icasmpl2024@learner.manipal.edu,shashank.icasmpl2024@learner.manipal.edu*
 
 ---
 
