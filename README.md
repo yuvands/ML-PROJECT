@@ -38,6 +38,47 @@ The project utilizes the **AI4I 2020 Predictive Maintenance Dataset**, sourced f
 | `UDI`                 | Unique identifier for each data point                 | Integer   |
 | `Product ID`          | Identifier for the product                            | String    |
 | `Type`                | Quality variant of the product (L, M, H)              | String    |
+| `Air temperature [K]` | Air temperature in Kelvin                             | Float     |
+| `Process temperature [K]` | Temperature of the manufacturing process in Kelvin  | Float     |
+| `Rotational speed [rpm]`| Rotational speed of the tool                          | Integer   |
+| `Torque [Nm]`         | Torque applied by the tool                            | Float     |
+| `Tool wear [min]`     | Wear time of the tool in minutes                      | Integer   |
+| `Machine failure`     | **Target Label**: 1 if failure occurred, 0 otherwise | Binary    |
+| `TWF`                 | **Failure Type**: Tool Wear Failure                   | Binary    |
+| `HDF`                 | **Failure Type**: Heat Dissipation Failure            | Binary    |
+| `PWF`                 | **Failure Type**: Power Failure                       | Binary    |
+| `OSF`                 | **Failure Type**: Overstrain Failure                  | Binary    |
+| `RNF`                 | **Failure Type**: Random Failure                      | Binary    |
+
+---
+
+## 4. Methodology
+
+The project follows a standard machine learning pipeline to build and evaluate the predictive model. The script `predictive_maintenance_local.py` automates these steps.
+
+1.  **Data Loading & Preprocessing:**
+    * The `ai4i2020.csv` dataset is loaded into a Pandas DataFrame.
+    * Categorical features like `Type` are converted into numerical format using one-hot encoding.
+    * Unnecessary columns like `UDI` and `Product ID` are dropped as they provide no predictive value.
+
+2.  **Exploratory Data Analysis (EDA):**
+    * Analyze the distribution of the target variable (`Machine failure`) to check for class imbalance.
+    * Visualize correlations between sensor readings (e.g., temperature, torque, speed) and machine failure.
+
+3.  **Model Training:**
+    * The dataset is split into training (80%) and testing (20%) sets.
+    * A classification algorithm (e.g., Random Forest Classifier, Logistic Regression) is trained on the training data. The model learns the relationship between the sensor inputs and the likelihood of a machine failure.
+
+4.  **Model Evaluation:**
+    * The trained model's performance is evaluated on the unseen test data.
+    * A **Confusion Matrix** is generated to visualize the model's predictions versus the actual outcomes. This matrix is key to understanding the types of errors the model makes.
+    * Key performance metrics are calculated:
+        * **Accuracy:** Overall correctness of the model.
+        * **Precision:** Of all the predicted failures, how many were actual failures? (Minimizes false positives).
+        * **Recall (Sensitivity):** Of all the actual failures, how many did the model correctly identify? (Minimizes false negatives).
+        * **F1-Score:** The harmonic mean of Precision and Recall.
+
+---
 
 ## 5. Results and Analysis
 
@@ -133,7 +174,11 @@ This project successfully demonstrates the viability of using machine learning f
 
 ## 11. Author
 
+<<<<<<< HEAD
 * **[Your Name]** - *[Your College ID or Email]*
+=======
+* **Yuvan DS, Shashank S** - *yuvan.icasmpl2024@learner.manipal.edu*
+>>>>>>> 476c870bf1c9d16cbc5bc63eba330d68a9dd95a8
 
 ---
 
