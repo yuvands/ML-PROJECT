@@ -5,38 +5,38 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, accuracy_score
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 def run_predictive_maintenance_model_local():
     """
     Main function to run the predictive maintenance modeling pipeline
     using a local CSV file.
     """
-    # --- 1. Load Data From a Local File ---
-    # Define the path to your local CSV file.
-    # Because the script and the CSV are in the same folder, we just need the filename.
+    #load file from local
     local_file_path = 'ai4i2020.csv'
 
     try:
         print(f"Attempting to load the local dataset: '{local_file_path}'...")
-        # Check if the file exists before trying to load it
+        # check if it exists
         if not os.path.exists(local_file_path):
             raise FileNotFoundError(
                 f"Error: The file '{local_file_path}' was not found in this directory.\n"
                 "Please make sure your Python script and your CSV file are in the same folder."
             )
         
-        # We use pandas to read the local CSV file.
+        #read csv
         df = pd.read_csv(local_file_path)
         print("Dataset loaded successfully from local file. ✅")
     except Exception as e:
         print(e)
         return
 
-    # --- 2. Data Exploration & Preprocessing ---
+    # data exploration
     print("\n--- Data Exploration ---")
     print("Dataset shape:", df.shape)
     print("First 5 rows:\n", df.head())
@@ -46,29 +46,27 @@ def run_predictive_maintenance_model_local():
     # Drop columns that are identifiers and not useful for prediction
     df = df.drop(['UDI', 'Product ID'], axis=1)
 
-    # Define features (X) and the target variable (y)
     X = df.drop(['Machine failure', 'TWF', 'HDF', 'PWF', 'OSF', 'RNF'], axis=1)
     y = df['Machine failure']
 
-    # Separate columns into numerical and categorical types
     categorical_features = ['Type']
     numerical_features = X.select_dtypes(include=np.number).columns.tolist()
 
-    # --- 3. Create Preprocessing Pipeline ---
+    # preprocessing pipeline
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', StandardScaler(), numerical_features),
             ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
         ])
 
-    # --- 4. Split Data into Training and Testing Sets ---
+    # training and testing dataset
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
     print(f"\nTraining set contains {X_train.shape[0]} samples.")
     print(f"Test set contains {X_test.shape[0]} samples.")
 
-    # --- 5. Define and Train the Machine Learning Model ---
+    # train model
     model_pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
         ('classifier', LogisticRegression(random_state=42, class_weight='balanced', max_iter=1000))
@@ -78,7 +76,7 @@ def run_predictive_maintenance_model_local():
     model_pipeline.fit(X_train, y_train)
     print("Model training is complete. 🦾")
 
-    # --- 6. Evaluate the Model's Performance ---
+    # eval performance
     print("\n--- Model Evaluation ---")
     y_pred = model_pipeline.predict(X_test)
     y_pred_proba = model_pipeline.predict_proba(X_test)[:, 1]
@@ -89,16 +87,48 @@ def run_predictive_maintenance_model_local():
 
     print("\nConfusion Matrix:")
     cm = confusion_matrix(y_test, y_pred)
-    
-    # Visualize the Confusion Matrix
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+
+    # Compare multiple models (Logistic Regression, Decision Tree, Random Forest)
+    models = {
+        'Logistic Regression': LogisticRegression(random_state=42, class_weight='balanced', max_iter=1000),
+        'Decision Tree': DecisionTreeClassifier(random_state=42, class_weight='balanced'),
+        'Random Forest': RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=100)
+    }
+
+    model_names = []
+    accuracies = []
+
+    for name, clf in models.items():
+        pipe = Pipeline(steps=[
+            ('preprocessor', preprocessor),
+            ('classifier', clf)
+        ])
+        pipe.fit(X_train, y_train)
+        acc = accuracy_score(y_test, pipe.predict(X_test))
+        model_names.append(name)
+        accuracies.append(acc)
+        print(f"{name} Accuracy: {acc:.4f}")
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    # confusion matrix
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[0],
                 xticklabels=['Predicted No Failure', 'Predicted Failure'],
                 yticklabels=['Actual No Failure', 'Actual Failure'])
-    plt.xlabel('Predicted Label')
-    plt.ylabel('True Label')
-    plt.title('Model Confusion Matrix (Local Data)')
-    plt.show()
+    axes[0].set_xlabel('Predicted Label')
+    axes[0].set_ylabel('True Label')
+    axes[0].set_title('Model Confusion Matrix (Local Data)')
+
+    # model accuracy comparison
+    axes[1].bar(model_names, accuracies, color=['#4C72B0', '#55A868', '#C44E52'])
+    axes[1].set_title("Model Accuracy Comparison")
+    axes[1].set_ylabel("Accuracy Score")
+    axes[1].set_ylim(0, 1)
+    for i, acc in enumerate(accuracies):
+        axes[1].text(i, acc + 0.01, f"{acc:.2f}", ha='center', fontsize=10)
+
+    plt.tight_layout()
+    plt.show(block=True)
 
 
 if __name__ == '__main__':
