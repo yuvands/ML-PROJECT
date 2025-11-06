@@ -31,7 +31,7 @@ def run_predictive_maintenance_model_local():
         
         #read csv
         df = pd.read_csv(local_file_path)
-        print("Dataset loaded successfully from local file. ✅")
+        print("Dataset loaded successfully from local file.")
     except Exception as e:
         print(e)
         return
@@ -90,9 +90,9 @@ def run_predictive_maintenance_model_local():
 
     # Compare multiple models (Logistic Regression, Decision Tree, Random Forest)
     models = {
-        'Logistic Regression': LogisticRegression(random_state=42, class_weight='balanced', max_iter=1000),
+        'Logistic Regression': LogisticRegression(random_state=42, class_weight='balanced', max_iter=500),
         'Decision Tree': DecisionTreeClassifier(random_state=42, class_weight='balanced'),
-        'Random Forest': RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=100)
+        'Random Forest': RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=300)
     }
 
     model_names = []
